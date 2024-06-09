@@ -1,0 +1,91 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local Window = OrionLib:MakeWindow({Name = "timo do emilia", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local M = Window:MakeTab({
+    Name = "sea event",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+M:AddToggle({
+    Name = "Teleport To Kitsune Island!",
+    Default = false,
+    Callback = function(Value)
+        _G.TeleportKitsune = Value
+        StopTween(_G.TeleportKitsune)
+    end    
+})
+
+spawn(function()
+    while wait() do
+        if _G.TeleportKitsune then
+            if game:GetService("Workspace").Map:FindFirstChild("KitsuneIsland") then
+                topos(game.Workspace.Map.KitsuneIsland.ShrineActive.NeonShrinePart.CFrame * CFrame.new(0,0,10))
+            end
+        end
+    end
+end)
+
+M:AddToggle({
+    Name = "Auto Collect Azure!",
+    Default = false,
+    Callback = function(Value)
+        _G.CollectAzure = Value
+    end    
+})
+
+spawn(function()
+    while wait() do
+        if _G.CollectAzure then
+            pcall(function()
+                if game:GetService("Workspace"):FindFirstChild("AttachedAzureEmber") then
+                    fastpos(game:GetService("Workspace"):WaitForChild("EmberTemplate"):FindFirstChild("Part").CFrame)
+                end
+            end)
+        end
+    end
+end)
+
+M:AddSlider({
+    Name = "Set Azure Ember",
+    Min = 0,
+    Max = 20,
+    Default = 5,
+    Color = Color3.fromRGB(0, 255, 255),
+    Increment = 1,
+    ValueName = "bananas",
+    Callback = function(v)
+        _G.SetToTradeAureEmber = v
+    end    
+})
+
+function GetCountMaterials(MaterialName)
+    local Inventory = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("getInventory")
+    for i, v in pairs(Inventory) do
+        if v.Name == MaterialName then
+            return v["Count"]
+        end
+    end
+end
+
+spawn(function()
+    while wait() do
+        if _G.TradeAureEmber then
+            pcall(function()
+                local AzureAvilable = GetCountMaterials("Azure Ember")
+                if AzureAvilable >= _G.SetToTradeAureEmber then
+                    game:GetService("ReplicatedStorage").Modules.Net:FindFirstChild("RF/KitsuneStatuePray"):InvokeServer()
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("KitsuneStatuePray")
+                end
+            end)
+        end
+    end
+end)
+
+M:AddToggle({
+    Name = "Auto Trade Azure Ember!",
+    Default = false,
+    Callback = function(Value)
+        _G.TradeAureEmber = Value
+    end    
+})
